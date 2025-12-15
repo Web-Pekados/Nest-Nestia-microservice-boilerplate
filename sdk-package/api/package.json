@@ -1,0 +1,45 @@
+{
+  "name": "@baron-zemo/backend-api2",
+  "version": "1.17.0",
+  "description": "Beneath black waves, Captain Vane heard bells tolling. His crew vanished in the fog, leaving lanterns afloat. The sound grew nearer, until cold hands dragged him toward the deep’s silent kingdom.",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestia/fetcher",
+      "tgrid",
+      "typia"
+    ]
+  },
+  "scripts": {
+    "build": "pnpm run build:sdk && pnpm run compile && pnpm run format",
+    "build:hard": "pnpm run build:hard:sdk && pnpm run compile && pnpm run format",
+    "format": "prettier --write \"../../nestia-api/**/*.ts\" && eslint --fix \"../../nestia-api/**/*.ts\"",
+    "build:sdk": "rimraf ../../nestia-api/functional && cd ../.. && pnpm exec nestia sdk && cd sdk-package/api",
+    "build:hard:sdk": "rimraf ../../nestia-api/functional && find ../../nestia-api/structures -name '*.ts' ! -name 'NestListener.ts' ! -name 'RemoteListener.ts' -delete && cd ../.. && pnpm exec nestia sdk && cd sdk-package/api",
+    "compile": "rimraf lib && tsc",
+    "deploy": "pnpm run build && pnpm run format && pnpm version minor && pnpm publish",
+    "deploy:major": "pnpm run build && pnpm run format && pnpm version major && pnpm publish",
+    "prepare": "ts-patch install",
+    "update": "pnpm dlx npm-check-updates",
+    "update:run": "pnpm dlx npm-check-updates -u && pnpm install"
+  },
+  "author": "Fuck you daddy",
+  "files": [
+    "lib",
+    "package.json"
+  ],
+  "devDependencies": {
+    "rimraf": "^6.1.2",
+    "ts-patch": "^3.3.0",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "@nestia/fetcher": "^9.1.1",
+    "tgrid": "^1.2.0",
+    "typia": "^10.1.0"
+  }
+}

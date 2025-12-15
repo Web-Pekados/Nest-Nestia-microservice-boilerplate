@@ -1,0 +1,135 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - '7000:7000'
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    # Read-only filesystem for security (optional, can be removed if issues occur)
+    read_only: true
+    # Temporary filesystem in RAM for /tmp (required when read_only: true)
+    tmpfs:
+      - /tmp
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - 'postgres-data:/var/lib/postgresql/data' # mount collected data to Docker volume
+    ports:
+      - '5444:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U myuser -d mydatabase']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - './prometheus.yaml:/etc/prometheus/prometheus.yml' # mount configuration file
+      - 'prometheus-data:/prometheus' # mount collected data to Docker volume
+    ports:
+      - '9090:9090'
+    restart: unless-stopped
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    networks:
+      - app-network
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - '3100:3100'
+    restart: unless-stopped
+    volumes:
+      - 'loki-data:/loki'
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+      - loki
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        # Directories for provisioning
+        mkdir -p /etc/grafana/provisioning/datasources
+        mkdir -p /etc/grafana/provisioning/dashboards
+        mkdir -p /var/lib/grafana/dashboards
+
+        # Datasources configuration
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy 
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+          uid: DS_LOKI
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus:9090 
+          editable: false
+          uid: DS_PROMETHEUS
+        EOF
+
+        # Dashboards configuration
+        cat <<EOF > /etc/grafana/provisioning/dashboards/dashboard.yaml
+        apiVersion: 1
+        providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            updateIntervalSeconds: 10
+            options:
+              path: /var/lib/grafana/dashboards
+        EOF
+
+        /run.sh
+    volumes:
+      - ./grafana-dashboards:/var/lib/grafana/dashboards
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  loki-data:
+
+networks:
+  app-network:
+    driver: bridge
