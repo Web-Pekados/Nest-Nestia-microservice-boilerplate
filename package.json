@@ -5,8 +5,8 @@
     "url": "https://github.com/Web-Pekados/Nest-Nestia-microservice-boilerplate"
   },
   "version": "1.0.0",
-  "description": "",
-  "author": "",
+  "description": "NestJS Microservice Boilerplate",
+  "author": "Pekados",
   "private": true,
   "license": "MIT",
   "engines": {
