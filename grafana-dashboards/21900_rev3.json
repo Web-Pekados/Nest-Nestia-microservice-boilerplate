@@ -77,7 +77,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(\r\n    avg_over_time(\r\n        {app=~\"$app\", namespace=~\"$namespace\"}\r\n        |= \"responseTime\"\r\n        | json\r\n        | unwrap responseTime\r\n        [${__range}]\r\n    )\r\n)",
+          "expr": "sum(\r\n    avg_over_time(\r\n        {app=~\"$app\", namespace=~\"$namespace\"}\r\n        |= \"responseTime\"\r\n        | json\r\n        | unwrap data_responseTime\r\n        [${__range}]\r\n    )\r\n)",
           "queryType": "range",
           "refId": "A"
         }
@@ -143,8 +143,8 @@
             "uid": "DS_LOKI"
           },
           "editorMode": "code",
-          "expr": "sum(\n    count_over_time(\n        {app=~\"$app\", namespace=~\"$namespace\"} \n        |= \"statusCode\"\n        | json\n        | res_statusCode < 400\n        [${__range}]\n    )\n)",
-          "legendFormat": "{{res_statusCode}}",
+          "expr": "sum(\n    count_over_time(\n        {app=~\"$app\", namespace=~\"$namespace\"} \n        |= \"statusCode\"\n        | json\n        | data_res_statusCode < 400\n        [${__range}]\n    )\n)",
+          "legendFormat": "{{data_res_statusCode}}",
           "queryType": "range",
           "refId": "A"
         }
@@ -210,8 +210,8 @@
             "uid": "DS_LOKI"
           },
           "editorMode": "code",
-          "expr": "sum(\n    count_over_time(\n        {app=~\"$app\", namespace=~\"$namespace\"} \n        |= \"statusCode\"\n        | json\n        | res_statusCode >= 400 and res_statusCode < 500\n        [${__range}]\n    )\n)",
-          "legendFormat": "{{res_statusCode}}",
+          "expr": "sum(\n    count_over_time(\n        {app=~\"$app\", namespace=~\"$namespace\"} \n        |= \"statusCode\"\n        | json\n        | data_res_statusCode >= 400 and data_res_statusCode < 500\n        [${__range}]\n    )\n)",
+          "legendFormat": "{{data_res_statusCode}}",
           "queryType": "range",
           "refId": "A"
         }
@@ -277,8 +277,8 @@
             "uid": "DS_LOKI"
           },
           "editorMode": "code",
-          "expr": "sum(\n    count_over_time(\n        {app=~\"$app\", namespace=~\"$namespace\"} \n        |= \"statusCode\"\n        | json\n        | res_statusCode >= 500\n        [${__range}]\n    )\n)",
-          "legendFormat": "{{res_statusCode}}",
+          "expr": "sum(\n    count_over_time(\n        {app=~\"$app\", namespace=~\"$namespace\"} \n        |= \"statusCode\"\n        | json\n        | data_res_statusCode >= 500\n        [${__range}]\n    )\n)",
+          "legendFormat": "{{data_res_statusCode}}",
           "queryType": "range",
           "refId": "A"
         }
@@ -344,8 +344,8 @@
             "uid": "DS_LOKI"
           },
           "editorMode": "builder",
-          "expr": "sum(count_over_time({app=~\"$app\", namespace=~\"$namespace\"} |= `statusCode` | json [${__range}]))",
-          "legendFormat": "{{res_statusCode}}",
+          "expr": "sum(count_over_time({app=~\"$app\", namespace=~\"$namespace\"} |= \"statusCode\" | json [${__range}]))",
+          "legendFormat": "{{data_res_statusCode}}",
           "queryType": "range",
           "refId": "A"
         }
@@ -488,8 +488,8 @@
             "uid": "DS_LOKI"
           },
           "editorMode": "code",
-          "expr": "count_over_time(\n    {app=~\"$app\", namespace=~\"$namespace\"} \n    |= \"statusCode\"\n    | json\n    | keep res_statusCode\n    [1m]\n)",
-          "legendFormat": "{{res_statusCode}}",
+          "expr": "count_over_time(\n    {app=~\"$app\", namespace=~\"$namespace\"} \n    |= \"statusCode\"\n    | json\n    | keep data_res_statusCode\n    [1m]\n)",
+          "legendFormat": "{{data_res_statusCode}}",
           "queryType": "range",
           "refId": "A"
         }
@@ -531,7 +531,7 @@
             "uid": "DS_LOKI"
           },
           "editorMode": "code",
-          "expr": "{app=~\"$app\", namespace=~\"$namespace\", level=~\"$level\"}\n| json\n| res_statusCode=~\"$status\"",
+          "expr": "{app=~\"$app\", namespace=~\"$namespace\", level=~\"$level\"}\n| json\n| data_res_statusCode=~\"$status\"",
           "queryType": "range",
           "refId": "A"
         }
