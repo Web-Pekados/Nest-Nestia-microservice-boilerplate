@@ -514,14 +514,15 @@
       },
       "id": 6,
       "options": {
-        "dedupStrategy": "none",
+        "dedupStrategy": "exact",
         "enableLogDetails": true,
         "prettifyLogMessage": false,
         "showCommonLabels": false,
         "showLabels": false,
         "showTime": true,
         "sortOrder": "Descending",
-        "wrapLogMessage": true
+        "wrapLogMessage": true,
+        "enableLogContext": false
       },
       "pluginVersion": "11.4.0",
       "targets": [
@@ -537,6 +538,18 @@
         }
       ],
       "title": "App Logs",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "level": "logLevel"
+            }
+          }
+        }
+      ],
       "type": "logs"
     }
   ],
